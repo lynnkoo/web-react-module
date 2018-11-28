@@ -6,13 +6,14 @@ const POPUPLAYER_ID = 'PopupLayer'
 const createPopupLayer = (): HTMLElement => {
   const node = document.createElement('div')
   node.id = POPUPLAYER_ID
-  node.className = 'position-fill fixed'
+  document.body.style.overflow = 'hidden'
   document.body.appendChild(node)
   return node
 }
 
 const removePopupLayer = (rootNode: HTMLElement) => {
   if (rootNode.children.length === 1) {
+    document.body.style.overflow = 'auto'
     document.body.removeChild(rootNode)
   }
 }
@@ -58,10 +59,10 @@ class PopupComponent extends React.Component<any> {
 export const PopoverGroup = (props: any) => {
   const { children } = props
 
-  const popoverRefs: any[] = []
+  const popupComponentRefs: any[] = []
 
   const onCloseGroup = () => {
-    popoverRefs.forEach((ref: any) => ref.hide())
+    popupComponentRefs.forEach((ref: any) => ref.hide())
   }
 
   let renderChild = null
@@ -70,11 +71,11 @@ export const PopoverGroup = (props: any) => {
     if (!child || typeof child === 'string' || typeof child === 'number') {
       return
     }
-    const { popover } = child.props
-    popoverRefs.push(popover)
-    if (popover.isActive) {
+    const { entity } = child.props
+    popupComponentRefs.push(entity)
+    if (entity.isActive) {
       renderChild = React.cloneElement(child, {
-        popover,
+        entity,
         group: { 
           hide: onCloseGroup,
         } 
@@ -89,13 +90,13 @@ export const PopoverGroup = (props: any) => {
   )
 }
 
-export const enhancePopover = (WrappedComponent: any) => (props: any) => {
-  const { group, popover } = props
+export const enhancePopupComponent = (WrappedComponent: any) => (props: any) => {
+  const { group, entity } = props
   return group ? (
-    <WrappedComponent {...props} popover={popover} group={group} />
-  ) : popover.isActive && (
+    <WrappedComponent {...props} entity={entity} group={group} />
+  ) : entity.isActive && (
     <PopupComponent>
-      <WrappedComponent {...props} popover={popover}  />
+      <WrappedComponent {...props} entity={entity}  />
     </PopupComponent>
   )
 }
